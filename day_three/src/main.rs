@@ -3,35 +3,61 @@ use std::collections::HashMap;
 
 const FILE_PATH: &str = "./src/input.txt";
 
-fn main() {
-    let input: String = fs::read_to_string(FILE_PATH)
-      .expect("Failed to read the input file.");
+struct Santa {
+  coordinates: (i32, i32),
+}
 
-    let mut house_map: HashMap<(i32, i32), u32> = HashMap::new();
-
-    // (x,y)
-    let mut current_house_coords: (i32, i32) = (0,0);
-    let mut presents_delivered: u32 = 0;
-
-    for movement in input.chars() {
-      let current_house_value = match house_map.get(&current_house_coords) {
+impl Santa {
+    fn new() -> Self {
+      Self { coordinates: (0,0) }
+    }
+    fn move_in_direction (&mut self, house_map: &mut HashMap<(i32, i32), u32>, direction: char) {
+      let current_house_value = match house_map.get(&self.coordinates) {
         None => 0,
         Some(x) => *x
       };
 
-      house_map.insert(current_house_coords, current_house_value + 1);
-
-      match movement {
-          '^' => { current_house_coords = (current_house_coords.0, current_house_coords.1 + 1) },
-          'v' => { current_house_coords = (current_house_coords.0, current_house_coords.1 - 1) },
-          '>' => { current_house_coords = (current_house_coords.0 + 1, current_house_coords.1) },
-          '<' => { current_house_coords = (current_house_coords.0 - 1, current_house_coords.1) },
-          _   => { println!("Found a char that is not represented. {}", movement) }
+      house_map.insert(self.coordinates, current_house_value + 1);
+  
+      match direction {
+          '^' => { self.coordinates = (self.coordinates.0, self.coordinates.1 + 1) },
+          'v' => { self.coordinates = (self.coordinates.0, self.coordinates.1 - 1) },
+          '>' => { self.coordinates = (self.coordinates.0 + 1, self.coordinates.1) },
+          '<' => { self.coordinates = (self.coordinates.0 - 1, self.coordinates.1) },
+          _   => { println!("Found a char that is not represented. {}", direction) }
       }
+    }
+}
 
-      presents_delivered = presents_delivered + 1;
+fn main() {
+    let input: String = fs::read_to_string(FILE_PATH)
+      .expect("Failed to read the input file.");
+
+    
+    { // Part 1
+      let mut house_map: HashMap<(i32, i32), u32> = HashMap::new();
+      let mut santa = Santa::new();
+  
+      for movement in input.chars() {
+        santa.move_in_direction(&mut house_map, movement);
+      }
+  
+      println!("Day 1 | Total houses with presents: {}", house_map.keys().len());
     }
 
-    println!("Day 1 | Total houses with presents: {}", house_map.keys().len());
-    println!("Day 1 | Presents delivered: {}", presents_delivered);
+    { // Part 2
+      let mut house_map: HashMap<(i32, i32), u32> = HashMap::new();
+      let mut santa = Santa::new();
+      let mut robo_santa = Santa::new();
+
+      for (index, movement) in input.chars().enumerate() {
+        if index % 2 == 0 {
+          santa.move_in_direction(&mut house_map, movement);
+        } else {
+          robo_santa.move_in_direction(&mut house_map, movement);
+        }
+      }
+
+      println!("Day 2 | Total houses with presents: {}", house_map.keys().len());
+    }
 }
