@@ -3,21 +3,29 @@ use std::fs;
 use regex::Regex;
 const FILE_PATH: &str = "./src/input.txt";
 struct Light {
-    on: bool
+    on: bool,
+    brightness: u32
 }
 
 impl Light {
     fn new() -> Self {
         Self {
-            on: false
+            on: false,
+            brightness: 0
         }
     }
     fn switch(mut self, value: bool) -> Light {
         self.on = value;
+        if value == true {
+            self.brightness += 1;
+        } else if value == false && self.brightness > 0 {
+            self.brightness -= 1;
+        }
         self
     }
     fn toggle(mut self) -> Light {
         self.on = !self.on;
+        self.brightness += 2;
         self
     }
 }
@@ -60,7 +68,7 @@ fn main() {
     }
 
     println!("Part 1 | Lights that are on: {}", light_map.values().filter(|v| v.on == true).count());
-    println!("Part 1 | Total light values: {}", light_map.values().count());
+    println!("Part 2 | Total brightness of lights: {}", light_map.values().map(|l| l.brightness).reduce(|reducer, val| reducer + val).unwrap());
 }
 
 // Too low: 568658
